@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Budget Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>欢迎使用 Budget Tracker</h1>
+    <nav>
+        <a href="{{ url_for('incomes') }}">收入</a> |
+        <a href="{{ url_for('expenditures') }}">支出</a> |
+        <a href="{{ url_for('goal') }}">储蓄目标</a>
+    </nav>
+</body>
+</html>

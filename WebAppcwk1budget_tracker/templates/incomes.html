@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>收入列表</h2>
+<ul>
+    {% for item in incomes %}
+        <li>{{ item.name }} - ¥{{ item.amount }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
