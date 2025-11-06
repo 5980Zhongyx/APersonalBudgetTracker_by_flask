@@ -14,59 +14,76 @@
 #------------------------
 #
 from flask import Flask, render_template, request, redirect, url_for
-from sqlalchemy import inspect
-import os
-from extensions import db  
-import models
+from sqlalchemy import inspect, func  # func is used for sum(), inspect checks tables
+from extensions import db  # shared db instance
+import models  # import all table models (Income, Expenditure, Goal)
 
-from flask import Flask, render_template, request, redirect, url_for
-from sqlalchemy import inspect
-from extensions import db
-import models
-
+# --- create the Flask app ---
 app = Flask(__name__)
+
+# --- config database ---
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:/python3.13.9/WebAppcwk1budget_tracker/BudgetTrackerdatabase.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'your_secret_key'
+app.secret_key = 'your_secret_key'  # needed for forms
+
+# --- bind db with the app ---
 db.init_app(app)
 
 
+# ---------------------- HOME PAGE ----------------------
 @app.route('/')
 def index():
-    return render_template('index.html')
+    from models import Income, Expenditure, Goal  # import inside to avoid loop import
+
+    # calculate total income and expenditure (return 0 if table empty)
+    total_income = db.session.query(func.sum(Income.amount)).scalar() or 0
+    total_expenditure = db.session.query(func.sum(Expenditure.amount)).scalar() or 0
+
+    # balance = income - expenditure
+    savings = total_income - total_expenditure
+
+    # render homepage summary
+    return render_template('index.html',
+                           total_income=total_income,
+                           total_expenditure=total_expenditure,
+                           savings=savings)
 
 
+# ---------------------- INCOME ----------------------
 @app.route('/incomes', methods=['GET', 'POST'])
 def incomes():
     from models import Income
+
     if request.method == 'POST':
         name = request.form['name']
         amount = request.form['amount']
-        new_income = Income(name=name, amount=float(amount))
+        new_income = Income(name=name, amount=float(amount))  # create new income
         db.session.add(new_income)
         db.session.commit()
-        return redirect(url_for('incomes'))
+        return redirect(url_for('incomes'))  # go back to same page
 
     data = Income.query.all()
     return render_template('incomes.html', incomes=data)
 
-# Delete Income
+
 @app.route('/delete_income/<int:id>', methods=['POST'])
 def delete_income(id):
     from models import Income
-    item = Income.query.get_or_404(id)
+    item = Income.query.get_or_404(id)  # find record by id
     db.session.delete(item)
     db.session.commit()
     return redirect(url_for('incomes'))
 
 
+# ---------------------- EXPENDITURE ----------------------
 @app.route('/expenditures', methods=['GET', 'POST'])
 def expenditures():
     from models import Expenditure
+
     if request.method == 'POST':
         name = request.form['name']
         amount = request.form['amount']
-        new_expenditure = Expenditure(name=name, amount=float(amount))
+        new_expenditure = Expenditure(name=name, amount=float(amount))  # add record
         db.session.add(new_expenditure)
         db.session.commit()
         return redirect(url_for('expenditures'))
@@ -84,13 +101,15 @@ def delete_expenditure(id):
     return redirect(url_for('expenditures'))
 
 
+# ---------------------- GOALS ----------------------
 @app.route('/goal', methods=['GET', 'POST'])
 def goal():
     from models import Goal
+
     if request.method == 'POST':
         name = request.form['name']
         value = request.form['value']
-        new_goal = Goal(name=name, value=float(value))
+        new_goal = Goal(name=name, value=float(value))  # add new goal
         db.session.add(new_goal)
         db.session.commit()
         return redirect(url_for('goal'))
@@ -98,7 +117,7 @@ def goal():
     data = Goal.query.all()
     return render_template('goal.html', goals=data)
 
-#
+
 @app.route('/delete_goal/<int:id>', methods=['POST'])
 def delete_goal(id):
     from models import Goal
@@ -108,9 +127,10 @@ def delete_goal(id):
     return redirect(url_for('goal'))
 
 
+# ---------------------- MAIN ENTRY ----------------------
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        db.create_all()  # create tables if not exist
         inspector = inspect(db.engine)
-        print("[INFO] Tables:", inspector.get_table_names())
+        print("[INFO] Tables:", inspector.get_table_names())  # quick check
     app.run(debug=True)
