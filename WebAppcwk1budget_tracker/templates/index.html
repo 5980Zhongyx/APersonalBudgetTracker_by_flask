@@ -1,15 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Budget Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <h1>欢迎使用 Budget Tracker</h1>
-    <nav>
-        <a href="{{ url_for('incomes') }}">收入</a> |
-        <a href="{{ url_for('expenditures') }}">支出</a> |
-        <a href="{{ url_for('goal') }}">储蓄目标</a>
-    </nav>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <h2>Budget Summary</h2>
+
+    <div class="summary-container">
+        <div class="summary-card">
+            <h3>Total Income</h3>
+            <p>${{ "%.2f"|format(total_income) }}</p>  <!-- show total income -->
+        </div>
+
+        <div class="summary-card">
+            <h3>Total Expenditure</h3>
+            <p>${{ "%.2f"|format(total_expenditure) }}</p>  <!-- show total spending -->
+        </div>
+
+        <div class="summary-card">
+            <h3>Savings Balance</h3>
+            <p>${{ "%.2f"|format(savings) }}</p>  <!-- show income - expenditure -->
+        </div>
+    </div>
+{% endblock %}
