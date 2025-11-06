@@ -1,9 +1,23 @@
 {% extends "base.html" %}
+{% block title %}Incomes{% endblock %}
 {% block content %}
-<h2>收入列表</h2>
-<ul>
-    {% for item in incomes %}
-        <li>{{ item.name }} - ¥{{ item.amount }}</li>
-    {% endfor %}
-</ul>
+    <h2>Incomes</h2>
+
+    <form method="POST">
+        <input type="text" name="name" placeholder="Income name" required>
+        <input type="number" name="amount" placeholder="Amount" step="0.01" required>
+        <button type="submit">Add</button>
+    </form>
+
+    <ul class="data-list">
+        {% for item in incomes %}
+            <li>
+                <span>{{ item.name }}</span>
+                <span>${{ item.amount }}</span>
+                <form method="POST" action="{{ url_for('delete_income', id=item.id) }}" style="display:inline;">
+                    <button type="submit" class="delete-btn">Delete</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock %}
