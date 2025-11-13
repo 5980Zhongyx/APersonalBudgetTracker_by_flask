@@ -1,23 +1,78 @@
-{% extends "base.html" %}
-{% block title %}Goals{% endblock %}
+# goal.html{% extends "base.html" %}
+{% block title %}Savings Goals{% endblock %}
 {% block content %}
-    <h2>Goals</h2>
 
-    <form method="POST">
-        <input type="text" name="name" placeholder="Goal name" required>
-        <input type="number" name="value" placeholder="Target amount" step="0.01" required>
-        <button type="submit">Add</button>
-    </form>
+<div class="summary-wrapper">
+    <h1>Savings Goals</h1>
 
-    <ul class="data-list">
-        {% for item in goals %}
-            <li>
-                <span>{{ item.name }}</span>
-                <span>${{ item.value }}</span>
-                <form method="POST" action="{{ url_for('delete_goal', id=item.id) }}" style="display:inline;">
-                    <button type="submit" class="delete-btn">Delete</button>
+    {% if goal %}
+    <div class="current-goal">
+        <h2>Current Goal</h2>
+
+        <div class="goal-card">
+            <h3>{{ goal.name }}</h3>
+            <p class="goal-amount">
+                Target: ${{ "%.2f"|format(goal.value) }}
+            </p>
+
+            <div class="goal-actions">
+                <a href="{{ url_for('edit_goal', id=goal.id) }}" class="btn-edit">Edit Goal</a>
+
+                <form method="POST"
+                      action="{{ url_for('delete_goal', id=goal.id) }}"
+                      class="inline-form">
+                    <button type="submit" class="btn-delete"
+                            onclick="return confirm('Delete this goal?')">
+                        Delete Goal
+                    </button>
                 </form>
-            </li>
-        {% endfor %}
-    </ul>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <h2>Progress Towards Goal</h2>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ progress_percentage }}%;">
+                        <span class="progress-text">{{ progress_percentage|round(1) }}%</span>
+                    </div>
+                </div>
+
+                <p class="progress-description">
+                    ${{ "%.2f"|format(savings) }} of ${{ "%.2f"|format(goal.value) }} saved
+                    {% if progress_percentage >= 100 %}
+                        <span class="goal-completed">🎉 Goal Completed!</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+    </div>
+    {% else %}
+    <div class="no-goal">
+        <h2>Create a Savings Goal</h2>
+
+        <form method="POST" class="data-form" novalidate>
+            <div class="form-group">
+                <label for="goal-name">Goal Name (optional)</label>
+                <input type="text" id="goal-name" name="name"
+                       placeholder="e.g., Laptop, Vacation"
+                       maxlength="100">
+            </div>
+
+            <div class="form-group">
+                <label for="goal-value">Target Amount</label>
+                <input type="number" id="goal-value" name="value"
+                       placeholder="Enter amount"
+                       step="0.01" min="0.01" required>
+                <span class="error-message" id="value-error"></span>
+            </div>
+
+            <button type="submit" class="btn-primary">Create Goal</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
 {% endblock %}
