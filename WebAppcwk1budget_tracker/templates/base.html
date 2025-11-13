@@ -6,18 +6,53 @@
     <title>{% block title %}Budget Tracker{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
-    <nav>
-        <div class="menu">
-            <a href="{{ url_for('index') }}">Home</a>
-            <a href="{{ url_for('incomes') }}">Incomes</a>
-            <a href="{{ url_for('expenditures') }}">Expenditures</a>
-            <a href="{{ url_for('goal') }}">Goals</a>
+<header role="banner">
+    <nav aria-label="Main navigation">
+        <div class="nav-container">
+            <h1 class="sr-only">Budget Tracker Application</h1>
+
+            <div class="menu" role="menubar">
+                <a href="{{ url_for('index') }}" role="menuitem"
+                   class="{% if request.endpoint == 'index' %}active{% endif %}">
+                    Home
+                </a>
+                <a href="{{ url_for('incomes') }}" role="menuitem"
+                   class="{% if request.endpoint == 'incomes' %}active{% endif %}">
+                    Incomes
+                </a>
+                <a href="{{ url_for('expenditures') }}" role="menuitem"
+                   class="{% if request.endpoint == 'expenditures' %}active{% endif %}">
+                    Expenditures
+                </a>
+                <a href="{{ url_for('goal') }}" role="menuitem"
+                   class="{% if request.endpoint == 'goal' %}active{% endif %}">
+                    Goals
+                </a>
+            </div>
         </div>
     </nav>
+</header>
 
-    <div class="container">
-        {% block content %}{% endblock %}
+<main class="container" role="main">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages" role="alert">
+                {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer role="contentinfo">
+    <div class="footer-container">
+        <p>&copy; 2025 Budget Tracker - University of Leeds</p>
     </div>
+</footer>
 </body>
 </html>
