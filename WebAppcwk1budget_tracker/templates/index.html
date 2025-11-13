@@ -1,22 +1,48 @@
+#index.html
 {% extends "base.html" %}
-{% block title %}Home{% endblock %}
+{% block title %}Home - Budget Summary{% endblock %}
 {% block content %}
-    <h2>Budget Summary</h2>
+
+<div class="summary-wrapper">
+    <h1>Budget Summary</h1>
 
     <div class="summary-container">
         <div class="summary-card">
-            <h3>Total Income</h3>
-            <p>${{ "%.2f"|format(total_income) }}</p>  <!-- show total income -->
+            <h2>Total Income</h2>
+            <p class="amount">${{ "%.2f"|format(total_income) }}</p>
         </div>
 
         <div class="summary-card">
-            <h3>Total Expenditure</h3>
-            <p>${{ "%.2f"|format(total_expenditure) }}</p>  <!-- show total spending -->
+            <h2>Total Expenditure</h2>
+            <p class="amount">${{ "%.2f"|format(total_expenditure) }}</p>
         </div>
 
-        <div class="summary-card">
-            <h3>Savings Balance</h3>
-            <p>${{ "%.2f"|format(savings) }}</p>  <!-- show income - expenditure -->
+        <div class="summary-card {% if savings < 0 %}negative-balance{% endif %}">
+            <h2>Savings Balance</h2>
+            <p class="amount">${{ "%.2f"|format(savings) }}</p>
         </div>
     </div>
+
+    {% if goal %}
+    <div class="goal-progress">
+        <h2>Goal Progress: {{ goal.name }}</h2>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ progress_percentage }}%;">
+                    <span class="progress-text">{{ progress_percentage|round(1) }}%</span>
+                </div>
+            </div>
+
+            <p class="progress-description">
+                ${{ "%.2f"|format(savings) }} of ${{ "%.2f"|format(goal.value) }} saved
+            </p>
+        </div>
+    </div>
+    {% else %}
+    <p class="no-goal-message">
+        No goal set. <a href="{{ url_for('goal') }}">Create a goal</a>.
+    </p>
+    {% endif %}
+
+</div>
 {% endblock %}
