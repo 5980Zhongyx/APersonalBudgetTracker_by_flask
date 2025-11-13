@@ -1,23 +1,64 @@
+# incomes.html
 {% extends "base.html" %}
 {% block title %}Incomes{% endblock %}
 {% block content %}
-    <h2>Incomes</h2>
 
-    <form method="POST">
-        <input type="text" name="name" placeholder="Income name" required>
-        <input type="number" name="amount" placeholder="Amount" step="0.01" required>
-        <button type="submit">Add</button>
+<div class="summary-wrapper">
+    <h1>Income Management</h1>
+
+    <form method="POST" class="data-form" novalidate>
+        <div class="form-group">
+            <label for="income-name">Income Name</label>
+            <input type="text" id="income-name" name="name"
+                   placeholder="Enter income name" required minlength="2">
+            <span class="error-message" id="name-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="income-amount">Amount</label>
+            <input type="number" id="income-amount" name="amount"
+                   placeholder="Enter amount" step="0.01" min="0.01" required>
+            <span class="error-message" id="amount-error"></span>
+        </div>
+
+        <button type="submit" class="btn-primary">Add Income</button>
     </form>
 
-    <ul class="data-list">
-        {% for item in incomes %}
-            <li>
-                <span>{{ item.name }}</span>
-                <span>${{ item.amount }}</span>
-                <form method="POST" action="{{ url_for('delete_income', id=item.id) }}" style="display:inline;">
-                    <button type="submit" class="delete-btn">Delete</button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="data-list-container">
+        {% if incomes %}
+        <table class="data-list">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in incomes %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>${{ "%.2f"|format(item.amount) }}</td>
+                    <td class="actions">
+                        <a href="{{ url_for('edit_income', id=item.id) }}" class="btn-edit">Edit</a>
+
+                        <form method="POST" action="{{ url_for('delete_income', id=item.id) }}"
+                              class="inline-form">
+                            <button type="submit" class="btn-delete"
+                                    onclick="return confirm('Delete this?')">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-data">No income records found.</p>
+        {% endif %}
+    </div>
+</div>
+
 {% endblock %}
